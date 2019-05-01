@@ -1,0 +1,12 @@
+type Todo @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  name: String!
+  description: String
+  assignee: User @connection(name: "TodoUser")
+}
+
+type User @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  name: String!
+  Todos: [Todo] @connection(name: "TodoUser")
+}

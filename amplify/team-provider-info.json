@@ -1,0 +1,19 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "appsync-apollo-todo-20190501202451-authRole",
+            "UnauthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190501202451-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190501202451-authRole",
+            "Region": "ap-northeast-1",
+            "DeploymentBucketName": "appsync-apollo-todo-20190501202451-deployment",
+            "UnauthRoleName": "appsync-apollo-todo-20190501202451-unauthRole",
+            "StackName": "appsync-apollo-todo-20190501202451",
+            "StackId": "arn:aws:cloudformation:ap-northeast-1:706386594667:stack/appsync-apollo-todo-20190501202451/bd12d320-6c03-11e9-a251-0aea6a80eeec"
+        },
+        "categories": {
+            "auth": {
+                "cognito912d86e9": {}
+            }
+        }
+    }
+}
