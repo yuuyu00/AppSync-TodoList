@@ -118,15 +118,24 @@ Parameters:
   userpoolClientSetAttributes:
     Type: String
           
-  resourceName:
+  useDefault:
     Type: String
             
   authSelections:
     Type: String
-                                                    
-  useDefault:
+            
+  resourceName:
     Type: String
-          
+              
+  thirdPartyAuth:
+    Type: String
+                
+  authProviders:
+    Type: CommaDelimitedList
+        
+  hostedUI:
+    Type: String
+                                                
 Conditions:
   ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
 
@@ -170,20 +179,9 @@ Resources:
     Properties:
       UserPoolName: !If [ShouldNotCreateEnvResources, !Ref userPoolName, !Join ['',[!Ref userPoolName, '-', !Ref env]]]
       
-      Schema: 
-        
-        -
-          Name: email
-          Required: true
-          Mutable: true
-        
-      
       
       AutoVerifiedAttributes: !Ref autoVerifiedAttributes
       
-      
-      EmailVerificationMessage: !Ref emailVerificationMessage
-      EmailVerificationSubject: !Ref emailVerificationSubject
             
       Policies:
         PasswordPolicy:
@@ -204,7 +202,7 @@ Resources:
   # Depends on UserPool for ID reference
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
-      ClientName: cognito912d86e9_app_clientWeb
+      ClientName: cognito4c3e7974_app_clientWeb
       
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
@@ -336,7 +334,7 @@ Resources:
   # Always created
     Type: AWS::Cognito::IdentityPool
     Properties: 
-      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'cognito912d86e9_identitypool_912d86e9', !Join ['',['cognito912d86e9_identitypool_912d86e9', '__', !Ref env]]]
+      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'appsync_apollo_todo4c3e7974_identitypool_4c3e7974', !Join ['',['appsync_apollo_todo4c3e7974_identitypool_4c3e7974', '__', !Ref env]]]
       
       CognitoIdentityProviders:
         - ClientId:  !Ref UserPoolClient

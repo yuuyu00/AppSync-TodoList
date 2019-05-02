@@ -1,36 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import gql from "graphql-tag";
-import { graphql, compose } from "react-apollo";
-import {
-  Button,
-  Header,
-  Image,
-  Modal,
-  Icon,
-  Form,
-  Dropdown
-} from "semantic-ui-react";
+import { graphql } from "react-apollo";
+import { Button, Modal, Icon, Form, Dropdown } from "semantic-ui-react";
 
 import { createTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
 
 const CreateTodo = props => {
   const [todo, setTodo] = useState("");
-  const [desc, setDesc] = useState("");
+  const [due, setDue] = useState("");
   const [assignee, setAssignee] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+
   const handleCreateTodo = () => {
     setTodo("");
-    setDesc("");
+    setDue("");
     setAssignee("");
 
     const input = {
       name: todo,
-      description: desc === "" ? null : desc,
+      description: due === "" ? null : due,
       todoAssigneeId: assignee
     };
-    props.addTodo(input);
+    const assigneeName = props.userOptions.find(
+      elm => elm.value === input.todoAssigneeId
+    );
+
+    props.addTodo(input, { assigneeName });
+    props.handleNotification("Task Added.");
   };
 
   if (!props.userOptions) return <div />;
@@ -39,9 +40,17 @@ const CreateTodo = props => {
     <Modal
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      trigger={<Button onClick={() => setIsOpen(true)}>Add Todo</Button>}
+      centered={false}
+      trigger={
+        <Icon
+          onClick={handleOpen}
+          name="add"
+          color="blue"
+          style={{ margin: "auto", fontSize: "30px" }}
+        />
+      }
     >
-      <Modal.Header>Select a Photo</Modal.Header>
+      <Modal.Header>Add Task</Modal.Header>
       <Modal.Content>
         <Form>
           <Form.Field>
@@ -54,11 +63,11 @@ const CreateTodo = props => {
             />
           </Form.Field>
           <Form.Field>
-            <label>Description</label>
+            <label>Due</label>
             <input
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              placeholder="Description"
+              value={due}
+              onChange={e => setDue(e.target.value)}
+              placeholder="Due"
             />
           </Form.Field>
           <Form.Field>
@@ -95,18 +104,18 @@ const query = gql(listTodos);
 
 export default graphql(gql(createTodo), {
   props: props => ({
-    addTodo: input => {
+    addTodo: (input, optimisticVal) => {
       props.mutate({
         variables: { input },
         optimisticResponse: {
           createTodo: {
             id: "",
             name: input.name,
-            description: "Loading...",
+            description: input.description,
             __typename: "Todo",
             assignee: {
               id: "",
-              name: "Loading...",
+              name: optimisticVal.assigneeName.text,
               __typename: "User",
               Todos: {
                 nextToken: null,

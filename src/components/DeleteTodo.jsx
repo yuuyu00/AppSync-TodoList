@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import gql from "graphql-tag";
-import { graphql, compose } from "react-apollo";
-import { Button, Header, Image, Modal, Icon, Form } from "semantic-ui-react";
+import { graphql } from "react-apollo";
+import { Button, Header, Modal, Icon } from "semantic-ui-react";
 
 import { deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
@@ -15,13 +15,18 @@ const DeleteTodo = props => {
     };
 
     props.deleteTodo(input);
+    props.handleNotification("Task Deleted.");
   };
 
   return (
     <Modal
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      trigger={<Button onClick={() => setIsOpen(true)}>Delete</Button>}
+      trigger={
+        <Button onClick={() => setIsOpen(true)} negative>
+          <Icon name="trash alternate" style={{ margin: "auto" }} />
+        </Button>
+      }
       basic
       size="small"
     >

@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import gql from "graphql-tag";
-import { graphql, compose } from "react-apollo";
+import { graphql } from "react-apollo";
 import { Button, Modal, Icon, Form, Dropdown } from "semantic-ui-react";
 
 import { updateTodo } from "../graphql/mutations";
-import { listTodos } from "../graphql/queries";
-import useUserOptions from "../hooks/useUserOptions";
 
 const UpdateTodo = props => {
-  const [todoId, setTodoId] = useState(props.todo.id);
   const [todo, setTodo] = useState(props.todo.name);
-  const [desc, setDesc] = useState(props.todo.description);
+  const [due, setDue] = useState(props.todo.description);
   const [assignee, setAssignee] = useState(props.todo.assignee.id);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleUpdateTodo = () => {
     setIsOpen(false);
-
     const input = {
-      id: todoId,
+      id: props.todo.id,
       name: todo,
-      description: desc,
+      description: due,
       todoAssigneeId: assignee
     };
 
-    props.updateTodo(input);
+    const assigneeName = props.userOptions.find(
+      elm => elm.value === input.todoAssigneeId
+    );
+
+    props.updateTodo(input, { assigneeName });
+    props.handleNotification("Task Edited.");
   };
 
   if (!props.userOptions) return <div />;
@@ -33,9 +34,13 @@ const UpdateTodo = props => {
     <Modal
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      trigger={<Button onClick={() => setIsOpen(true)}>Edit</Button>}
+      trigger={
+        <Button onClick={() => setIsOpen(true)}>
+          <Icon name="pencil" style={{ margin: "auto" }} />
+        </Button>
+      }
     >
-      <Modal.Header>Select a Photo</Modal.Header>
+      <Modal.Header>Edit Task</Modal.Header>
       <Modal.Content>
         <Form>
           <Form.Field>
@@ -47,18 +52,20 @@ const UpdateTodo = props => {
             />
           </Form.Field>
           <Form.Field>
-            <label>Description</label>
+            <label>Due</label>
             <input
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              placeholder="Description"
+              value={due}
+              onChange={e => setDue(e.target.value)}
+              placeholder="Due"
             />
           </Form.Field>
           <Form.Field>
             <label>Assignee</label>
             <Dropdown
               placeholder="Select Assignee"
-              onChange={(e, data) => setAssignee(data.value)}
+              onChange={(e, data) => {
+                setAssignee(data.value);
+              }}
               value={assignee}
               fluid
               selection
@@ -81,7 +88,7 @@ const UpdateTodo = props => {
 
 export default graphql(gql(updateTodo), {
   props: props => ({
-    updateTodo: input => {
+    updateTodo: (input, optimisticVal) => {
       props.mutate({
         variables: { input },
         optimisticResponse: {
@@ -91,8 +98,8 @@ export default graphql(gql(updateTodo), {
             description: input.description,
             __typename: "Todo",
             assignee: {
-              id: input.assignee,
-              name: "Loading...",
+              id: input.todoAssigneeId,
+              name: optimisticVal.assigneeName.text,
               __typename: "User",
               Todos: {
                 nextToken: null,

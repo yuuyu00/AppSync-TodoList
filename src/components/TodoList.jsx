@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
-import { graphql, compose } from "react-apollo";
+import { graphql } from "react-apollo";
 import { listTodos } from "../graphql/queries";
-import { Segment, Button, List, Menu } from "semantic-ui-react";
+import { List, Menu, Checkbox } from "semantic-ui-react";
 
-import { createTodo } from "../graphql/mutations";
 import CreateTodo from "./CreateTodo";
 import DeleteTodo from "./DeleteTodo";
 import UpdateTodo from "./UpdateTodo";
 import useUserOptions from "../hooks/useUserOptions";
+import Notification from "./Notification";
 
 const TodoList = props => {
   const [userOptions, setUserOptions] = useState(null);
-  const [activeItem, setActiveItem] = useState("");
+  const [activeItem, setActiveItem] = useState("TODO");
+  const [notifiVisible, setNotifiVisible] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
   const getUserOption = useUserOptions;
 
   useEffect(() => {
@@ -22,22 +24,44 @@ const TodoList = props => {
     })();
   }, []);
 
+  const handleNotification = message => {
+    setNotifyMessage(message);
+    setNotifiVisible(true);
+    setTimeout(() => {
+      setNotifiVisible(false);
+    }, 3000);
+  };
+
   const renderTodos = todoItems => {
     todoItems = todoItems.data.listTodos.items;
     return (
-      <List bulleted>
+      <List
+        style={{ paddingRight: "3%", paddingLeft: "3%", paddingTop: "15px" }}
+      >
         {todoItems.map(elm => {
           return (
             <List.Item key={elm.id}>
               <List.Content floated="right">
+                <span style={{ marginRight: "10px" }}>{elm.description}</span>
                 <UpdateTodo
                   todo={elm}
                   userOptions={userOptions}
                   todos={todoItems}
+                  handleNotification={handleNotification}
                 />
-                <DeleteTodo id={elm.id} todoname={elm.name} />
+                <DeleteTodo
+                  id={elm.id}
+                  todoname={elm.name}
+                  handleNotification={handleNotification}
+                />
               </List.Content>
-              {elm.name}
+              <List.Content floated="left">
+                <Checkbox style={{ marginTop: "5px", marginBotton: "5px" }} />
+              </List.Content>
+              <List.Content>
+                <List.Header>{elm.name}</List.Header>
+                {elm.assignee.name}
+              </List.Content>
             </List.Item>
           );
         })}
@@ -51,30 +75,24 @@ const TodoList = props => {
 
   const renderMenu = () => {
     return (
-      <Menu>
+      <Menu tabular>
         <Menu.Item
-          name="editorials"
-          active={activeItem === "editorials"}
+          name="TODO"
+          active={activeItem === "TODO"}
           onClick={handleItemClick}
-        >
-          Editorials
-        </Menu.Item>
-
+        />
         <Menu.Item
-          name="reviews"
-          active={activeItem === "reviews"}
+          name="Member"
+          active={activeItem === "Member"}
           onClick={handleItemClick}
-        >
-          Reviews
-        </Menu.Item>
-
-        <Menu.Item
-          name="upcomingEvents"
-          active={activeItem === "upcomingEvents"}
-          onClick={handleItemClick}
-        >
-          Upcoming Events
-        </Menu.Item>
+        />
+        <Menu.Menu position="right" style={{ paddingRight: "10%" }}>
+          <CreateTodo
+            todos={props.data.listTodos.items}
+            userOptions={userOptions}
+            handleNotification={handleNotification}
+          />
+        </Menu.Menu>
       </Menu>
     );
   };
@@ -82,16 +100,14 @@ const TodoList = props => {
   if (props.data.loading) return <div>Loading...</div>;
 
   return (
-    <>
+    <div>
       {renderMenu()}
-      <Segment>
-        {renderTodos(props)}
-        <CreateTodo
-          todos={props.data.listTodos.items}
-          userOptions={userOptions}
-        />
-      </Segment>
-    </>
+      {renderTodos(props)}
+      <Notification
+        notifiVisible={notifiVisible}
+        notifyMessage={notifyMessage}
+      />
+    </div>
   );
 };
 
