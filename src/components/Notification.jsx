@@ -15,7 +15,6 @@ export default ({ notifiVisible, notifyMessage }) => {
           top: "auto",
           right: "5%",
           left: "5%",
-          width: "90%",
           zIndex: 1000
         }}
       >

@@ -1,18 +1,18 @@
 {
     "dev": {
         "awscloudformation": {
-            "AuthRoleName": "appsync-apollo-todo-20190502183617-authRole",
-            "UnauthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190502183617-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190502183617-authRole",
+            "AuthRoleName": "appsync-apollo-todo-20190502221530-authRole",
+            "UnauthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190502221530-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::706386594667:role/appsync-apollo-todo-20190502221530-authRole",
             "Region": "ap-northeast-1",
-            "DeploymentBucketName": "appsync-apollo-todo-20190502183617-deployment",
-            "UnauthRoleName": "appsync-apollo-todo-20190502183617-unauthRole",
-            "StackName": "appsync-apollo-todo-20190502183617",
-            "StackId": "arn:aws:cloudformation:ap-northeast-1:706386594667:stack/appsync-apollo-todo-20190502183617/bc9faa70-6cbd-11e9-88ee-0a1d3b063294"
+            "DeploymentBucketName": "appsync-apollo-todo-20190502221530-deployment",
+            "UnauthRoleName": "appsync-apollo-todo-20190502221530-unauthRole",
+            "StackName": "appsync-apollo-todo-20190502221530",
+            "StackId": "arn:aws:cloudformation:ap-northeast-1:706386594667:stack/appsync-apollo-todo-20190502221530/5d131f50-6cdc-11e9-9f3c-0e83df3f8cd0"
         },
         "categories": {
             "auth": {
-                "cognito4c3e7974": {}
+                "cognito37ba2465": {}
             }
         }
     }

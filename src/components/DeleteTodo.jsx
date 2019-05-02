@@ -68,7 +68,6 @@ export default graphql(gql(deleteTodo), {
             query: gql(listTodos),
             variables: { limit: 100 }
           });
-          console.log(data);
           data.listTodos.items = data.listTodos.items.filter(
             elm => elm.id !== deleteTodo.id
           );

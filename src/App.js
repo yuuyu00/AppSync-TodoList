@@ -1,52 +1,58 @@
-import React, { useEffect } from "react";
-import { withAuthenticator, SignIn } from "aws-amplify-react";
+import React, { useState, useEffect } from "react";
+import { Auth, Hub } from "aws-amplify";
+import { Authenticator } from "aws-amplify-react";
 import { Route, Router, Switch } from "react-router-dom";
-import { Auth } from "aws-amplify";
 import history from "./history";
 
 import TodoList from "./components/TodoList";
-import Test from "./components/Test";
 
 function App() {
-  const a = Auth.currentAuthenticatedUser()
-    .then(user => {
-      return (
-        <Router history={history}>
-          <Switch>
-            <Route path="/" exact component={TodoList} />
-            <Route path="/test" exact component={Test} />
-          </Switch>
-        </Router>
-      );
-    })
-    .catch(err => {
-      return <button>a</button>;
-    });
+  const [user, setUser] = useState();
 
   useEffect(() => {
-    Auth.signIn("test1", "testtest")
-      .then(user => console.log(user))
-      .catch(err => console.log(err));
-  });
+    getUserData();
+    Hub.listen("auth", onHubCapsule);
+  }, []);
 
-  const handleLogin = (username, password) => {
-    Auth.signUp({
-      username,
-      password
-    })
-      .then(data => console.log(data))
-      .catch(err => console.log(err));
+  const getUserData = async () => {
+    const gotUser = await Auth.currentAuthenticatedUser();
+    gotUser ? setUser(gotUser) : setUser(null);
   };
 
-  return (
-    <Router history={history}>
-      <Switch>
-        <Route path="/" exact component={TodoList} />
-        <Route path="/test" exact component={Test} />
-      </Switch>
-    </Router>
-  );
+  const handleSignout = async () => {
+    try {
+      await Auth.signOut();
+    } catch (err) {
+      console.error("Error signing out user", err);
+    }
+  };
+
+  const onHubCapsule = capsule => {
+    switch (capsule.payload.event) {
+      case "signIn":
+        getUserData();
+        break;
+      case "signOut":
+        setUser(null);
+        break;
+      default:
+        break;
+    }
+  };
+
+  if (!user) {
+    return <Authenticator />;
+  } else {
+    return (
+      <Router history={history}>
+        <Switch>
+          <Route path="/" exact component={TodoList} />
+          <Route path="/:category" component={TodoList} />
+        </Switch>
+      </Router>
+    );
+  }
 }
 
-export default withAuthenticator(App, { includeGreetings: true });
-// export default App;
+// export default withAuthenticator(App, { includeGreetings: true });
+export default App;

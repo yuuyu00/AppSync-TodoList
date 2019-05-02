@@ -5,8 +5,8 @@ export const onCreateTodo = `subscription OnCreateTodo {
   onCreateTodo {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -20,8 +20,8 @@ export const onUpdateTodo = `subscription OnUpdateTodo {
   onUpdateTodo {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -35,8 +35,8 @@ export const onDeleteTodo = `subscription OnDeleteTodo {
   onDeleteTodo {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -46,45 +46,45 @@ export const onDeleteTodo = `subscription OnDeleteTodo {
   }
 }
 `;
-export const onCreateUser = `subscription OnCreateUser {
-  onCreateUser {
+export const onCreateCategory = `subscription OnCreateCategory {
+  onCreateCategory {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }
   }
 }
 `;
-export const onUpdateUser = `subscription OnUpdateUser {
-  onUpdateUser {
+export const onUpdateCategory = `subscription OnUpdateCategory {
+  onUpdateCategory {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }
   }
 }
 `;
-export const onDeleteUser = `subscription OnDeleteUser {
-  onDeleteUser {
+export const onDeleteCategory = `subscription OnDeleteCategory {
+  onDeleteCategory {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }

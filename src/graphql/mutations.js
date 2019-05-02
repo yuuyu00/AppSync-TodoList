@@ -5,8 +5,8 @@ export const createTodo = `mutation CreateTodo($input: CreateTodoInput!) {
   createTodo(input: $input) {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -20,8 +20,8 @@ export const updateTodo = `mutation UpdateTodo($input: UpdateTodoInput!) {
   updateTodo(input: $input) {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -35,8 +35,8 @@ export const deleteTodo = `mutation DeleteTodo($input: DeleteTodoInput!) {
   deleteTodo(input: $input) {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -46,45 +46,45 @@ export const deleteTodo = `mutation DeleteTodo($input: DeleteTodoInput!) {
   }
 }
 `;
-export const createUser = `mutation CreateUser($input: CreateUserInput!) {
-  createUser(input: $input) {
+export const createCategory = `mutation CreateCategory($input: CreateCategoryInput!) {
+  createCategory(input: $input) {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }
   }
 }
 `;
-export const updateUser = `mutation UpdateUser($input: UpdateUserInput!) {
-  updateUser(input: $input) {
+export const updateCategory = `mutation UpdateCategory($input: UpdateCategoryInput!) {
+  updateCategory(input: $input) {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }
   }
 }
 `;
-export const deleteUser = `mutation DeleteUser($input: DeleteUserInput!) {
-  deleteUser(input: $input) {
+export const deleteCategory = `mutation DeleteCategory($input: DeleteCategoryInput!) {
+  deleteCategory(input: $input) {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }

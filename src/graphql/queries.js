@@ -5,8 +5,8 @@ export const getTodo = `query GetTodo($id: ID!) {
   getTodo(id: $id) {
     id
     name
-    description
-    assignee {
+    due
+    category {
       id
       name
       Todos {
@@ -25,8 +25,8 @@ export const listTodos = `query ListTodos(
     items {
       id
       name
-      description
-      assignee {
+      due
+      category {
         id
         name
       }
@@ -35,27 +35,27 @@ export const listTodos = `query ListTodos(
   }
 }
 `;
-export const getUser = `query GetUser($id: ID!) {
-  getUser(id: $id) {
+export const getCategory = `query GetCategory($id: ID!) {
+  getCategory(id: $id) {
     id
     name
     Todos {
       items {
         id
         name
-        description
+        due
       }
       nextToken
     }
   }
 }
 `;
-export const listUsers = `query ListUsers(
-  $filter: ModelUserFilterInput
+export const listCategorys = `query ListCategorys(
+  $filter: ModelCategoryFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listCategorys(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       name
