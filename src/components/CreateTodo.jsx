@@ -168,6 +168,7 @@ const CreateTodo = props => {
             キャンセル
           </Button>
           <Button
+            disabled={!todo}
             color="green"
             onClick={() => {
               handleCreateTodo();

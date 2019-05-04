@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo-hooks';
-import { Button, Modal, Icon, Form, Menu } from 'semantic-ui-react';
+import { Button, Modal, Icon, Form } from 'semantic-ui-react';
 
 import { createCategory as mutation } from '../graphql/mutations';
 import { listCategorys } from '../graphql/queries';
@@ -13,10 +13,6 @@ const CreateCategory = () => {
   const notification = useNotification();
 
   const createCategory = useMutation(gql(mutation));
-
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
 
   const handleCreateTodo = () => {
     setName('');
@@ -93,6 +89,7 @@ const CreateCategory = () => {
           </Button>
           <Button
             color="green"
+            disabled={!name}
             onClick={() => {
               handleCreateTodo();
               setIsOpen(false);
