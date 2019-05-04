@@ -54,8 +54,6 @@ const TodoList = props => {
       id: elm.id,
       done: !elm.done,
     };
-    console.log(elm);
-    console.log(input);
 
     updateTodo({
       variables: { input },
@@ -246,7 +244,14 @@ const TodoList = props => {
         </Menu.Item>
         <Menu.Item position="right" style={{ paddingRight: '10%' }} />
         <Menu.Item>
-          <Button onClick={() => Auth.signOut()}>Sign Out</Button>
+          <Button
+            onClick={async () => {
+              await Auth.signOut();
+              history.push('/');
+            }}
+          >
+            サインアウト
+          </Button>
         </Menu.Item>
       </Menu>
     );

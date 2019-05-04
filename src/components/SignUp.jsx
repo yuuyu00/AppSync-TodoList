@@ -6,8 +6,9 @@ import history from '../history';
 export default () => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [signInSucceed, setSignInSucceed] = useState(true);
+  const [registerSucceed, setRegisterSucceed] = useState(true);
   const [validationResult, setValidationResult] = useState({
     username: true,
     email: true,
@@ -16,11 +17,23 @@ export default () => {
     validPassword: true,
   });
 
-  const handleSignIn = async () => {
+  const handleSignUp = () => {
     setLoading(true);
-    Auth.signIn(username, password)
-      .then(() => history.push('/'))
-      .catch(() => setSignInSucceed(false));
+    Auth.signUp({
+      username,
+      password,
+      attributes: {
+        email,
+      },
+    })
+      .then(async () => {
+        await Auth.signIn(username, password);
+        history.push('/');
+      })
+      .catch(() => {
+        setRegisterSucceed(false);
+        setLoading(false);
+      });
   };
 
   const formValidation = () => {
@@ -34,6 +47,11 @@ export default () => {
     if (username === '') {
       result.username = false;
     }
+    if (!email) {
+      result.email = false;
+    } else if (email.indexOf('@') === -1) {
+      result.validEmail = false;
+    }
     if (!password) {
       result.password = false;
     } else if (password.length < 8) {
@@ -43,7 +61,7 @@ export default () => {
     const isValidationPassed = Object.values(result).reduce(
       (acc, cur) => acc && cur,
     );
-    isValidationPassed ? handleSignIn() : setValidationResult(result);
+    isValidationPassed ? handleSignUp() : setValidationResult(result);
   };
 
   const renderSignUp = () => {
@@ -54,7 +72,7 @@ export default () => {
           error
         >
           <Header as="h1" style={{ marginBottom: '10%' }}>
-            サインイン
+            サインアップ
           </Header>
           <Form.Field required>
             <label>ユーザー名</label>
@@ -69,15 +87,38 @@ export default () => {
             />
           </Form.Field>
           <Form.Field required>
+            <label>Eメールアドレス</label>
+            <Form.Input
+              onChange={e => setEmail(e.target.value)}
+              placeholder="youremailaddress@example.com"
+            />
+            <Message
+              error
+              hidden={validationResult.email}
+              content="Eメールアドレスは必須です"
+            />
+            <Message
+              error
+              hidden={validationResult.validEmail}
+              content="Eメールアドレスが不正です"
+            />
+          </Form.Field>
+          <Form.Field required>
             <label>パスワード</label>
             <Form.Input
               onChange={e => setPassword(e.target.value)}
               type="password"
+              placeholder="8文字以上"
             />
             <Message
               error
               hidden={validationResult.password}
               content="パスワードは必須です"
+            />
+            <Message
+              error
+              hidden={validationResult.validPassword}
+              content="パスワードは8文字以上を設定してください"
             />
           </Form.Field>
           <Button
@@ -85,12 +126,12 @@ export default () => {
             type="submit"
             onClick={() => formValidation()}
           >
-            サインイン
+            登録
           </Button>
           <Message
             error
-            hidden={signInSucceed}
-            content="サインインに失敗しました。"
+            hidden={registerSucceed}
+            content="登録に失敗しました。"
           />
         </Form>
       </>

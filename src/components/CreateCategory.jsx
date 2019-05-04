@@ -42,12 +42,10 @@ const CreateCategory = () => {
         },
       },
       update: (store, { data: { createCategory } }) => {
-        console.log(createCategory);
         const data = store.readQuery({
           query: gql(listCategorys),
           variables: { limit: 100 },
         });
-        console.log(data);
         data.listCategorys.items.push(createCategory);
         store.writeQuery({
           query: gql(listCategorys),
@@ -56,7 +54,7 @@ const CreateCategory = () => {
         });
       },
     });
-    notification.handleNotification('Category Added.');
+    notification.handleNotification('カテゴリーを追加しました');
   };
 
   return (
@@ -91,7 +89,7 @@ const CreateCategory = () => {
         <Modal.Actions>
           <Button color="red" onClick={() => setIsOpen(false)}>
             <Icon name="remove" />
-            Cancel
+            キャンセル
           </Button>
           <Button
             color="green"
@@ -101,7 +99,7 @@ const CreateCategory = () => {
             }}
           >
             <Icon name="checkmark" />
-            Add
+            追加
           </Button>
         </Modal.Actions>
       </Modal>

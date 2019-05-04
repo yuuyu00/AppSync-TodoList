@@ -7,6 +7,7 @@ import history from './history';
 import TodoList from './components/TodoList';
 import Landing from './components/Landing';
 import SignIn from './components/SignIn';
+import SignUp from './components/SignUp';
 
 function App() {
   const [user, setUser] = useState();
@@ -47,7 +48,7 @@ function App() {
         </Menu.Item>
         <Menu.Item position="right" style={{ paddingRight: '10%' }} />
         <Menu.Item>
-          <Button onClick={() => history.push('/signin')}>Sign In</Button>
+          <Button onClick={() => history.push('/signin')}>サインイン</Button>
         </Menu.Item>
       </Menu>
     );
@@ -68,7 +69,8 @@ function App() {
         {renderMenu()}
         <Switch>
           <Route path="/" exact component={Landing} />
-          <Route path="/signin" user={user} component={SignIn} />
+          <Route path="/signin" exact user={user} component={SignIn} />
+          <Route path="/signup" exact component={SignUp} />
         </Switch>
       </Router>
     );

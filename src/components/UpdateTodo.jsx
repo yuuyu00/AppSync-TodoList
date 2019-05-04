@@ -100,11 +100,11 @@ const UpdateTodo = props => {
         <Modal.Actions>
           <Button color="red" onClick={() => props.setOpenUpdate('')}>
             <Icon name="remove" />
-            Cancel
+            キャンセル
           </Button>
           <Button color="green" onClick={handleUpdateTodo}>
             <Icon name="checkmark" onClick={() => props.setOpenUpdate('')} />
-            Update
+            追加
           </Button>
         </Modal.Actions>
       </Modal>

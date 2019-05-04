@@ -21,7 +21,9 @@
     "jsx-a11y/label-has-associated-control": 0,
     "jsx-a11y/label-has-for": 0,
     "operator-linebreak": 0,
-    "react/jsx-filename-extension": 0
+    "react/jsx-filename-extension": 0,
+    "no-unused-expressions": 0,
+    "no-restricted-globals": 0
   },
   "globals": {
     "window": false,

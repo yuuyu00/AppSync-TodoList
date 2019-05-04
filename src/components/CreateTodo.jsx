@@ -165,7 +165,7 @@ const CreateTodo = props => {
         <Modal.Actions>
           <Button color="red" onClick={() => setIsOpen(false)}>
             <Icon name="remove" />
-            Cancel
+            キャンセル
           </Button>
           <Button
             color="green"
@@ -175,7 +175,7 @@ const CreateTodo = props => {
             }}
           >
             <Icon name="checkmark" />
-            Add
+            追加
           </Button>
         </Modal.Actions>
       </Modal>

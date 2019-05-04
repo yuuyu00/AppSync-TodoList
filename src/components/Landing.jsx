@@ -3,6 +3,8 @@ import { Auth } from 'aws-amplify';
 import uuid from 'uuidv4';
 import { Header, Icon, Button } from 'semantic-ui-react';
 
+import history from '../history';
+
 export default () => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,7 +40,12 @@ export default () => {
       >
         ログインせずに始める
       </Button>
-      <Button size="large" style={{ marginTop: '20px' }} color="grey">
+      <Button
+        size="large"
+        style={{ marginTop: '20px' }}
+        color="grey"
+        onClick={() => history.push('/signup')}
+      >
         サインアップ
       </Button>
     </Header>

@@ -1,3 +1,7 @@
+body {
+  touch-action: manipulation;
+}
+
 input {
   font-size: 16px !important;
 }
