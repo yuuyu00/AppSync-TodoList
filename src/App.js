@@ -9,7 +9,7 @@ import Landing from './components/Landing';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 
-function App() {
+const App = () => {
   const [user, setUser] = useState();
 
   const getUserData = async () => {
@@ -75,6 +75,6 @@ function App() {
       </Router>
     );
   }
-}
+};
 
 export default App;
