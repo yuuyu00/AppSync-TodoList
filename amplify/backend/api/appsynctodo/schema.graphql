@@ -2,6 +2,7 @@ type Todo @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   name: String!
   due: String
+  done: Boolean
   category: Category @connection(name: "TodoCategory")
 }
 

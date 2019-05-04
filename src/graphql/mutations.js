@@ -6,6 +6,7 @@ export const createTodo = `mutation CreateTodo($input: CreateTodoInput!) {
     id
     name
     due
+    done
     category {
       id
       name
@@ -21,6 +22,7 @@ export const updateTodo = `mutation UpdateTodo($input: UpdateTodoInput!) {
     id
     name
     due
+    done
     category {
       id
       name
@@ -36,6 +38,7 @@ export const deleteTodo = `mutation DeleteTodo($input: DeleteTodoInput!) {
     id
     name
     due
+    done
     category {
       id
       name
@@ -55,6 +58,7 @@ export const createCategory = `mutation CreateCategory($input: CreateCategoryInp
         id
         name
         due
+        done
       }
       nextToken
     }
@@ -70,6 +74,7 @@ export const updateCategory = `mutation UpdateCategory($input: UpdateCategoryInp
         id
         name
         due
+        done
       }
       nextToken
     }
@@ -85,6 +90,7 @@ export const deleteCategory = `mutation DeleteCategory($input: DeleteCategoryInp
         id
         name
         due
+        done
       }
       nextToken
     }

@@ -1,15 +1,19 @@
-import React from "react";
-import { listCategorys } from "../graphql/queries";
-import { Menu } from "semantic-ui-react";
-import { graphql } from "react-apollo";
-import gql from "graphql-tag";
-import history from "../history";
+import React from 'react';
+import { Menu } from 'semantic-ui-react';
+import { useQuery } from 'react-apollo-hooks';
+import gql from 'graphql-tag';
 
-import CreateCategory from "./CreateCategory";
+import { listCategorys } from '../graphql/queries';
+import history from '../history';
+import CreateCategory from './CreateCategory';
 
-const Categories = props => {
+const Categories = () => {
+  const { data, loading } = useQuery(gql(listCategorys), {
+    variables: { limit: 100 },
+  });
+
   const renderCategories = () => {
-    return props.data.listCategorys.items.map(elm => {
+    return data.listCategorys.items.map(elm => {
       return (
         <Menu.Item
           key={elm.id}
@@ -22,13 +26,13 @@ const Categories = props => {
     });
   };
 
-  if (props.data.loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
   return (
     <>
-      <Menu.Item as="a" onClick={() => history.push(`/`)}>
+      <Menu.Item as="a" onClick={() => history.push('/')}>
         All Todos
       </Menu.Item>
-      <Menu.Item as="a" onClick={() => history.push(`/Inbox`)}>
+      <Menu.Item as="a" onClick={() => history.push('/Inbox')}>
         Inbox
       </Menu.Item>
       {renderCategories()}
@@ -37,6 +41,4 @@ const Categories = props => {
   );
 };
 
-export default graphql(gql(listCategorys), {
-  options: props => ({ variables: { limit: 100 } })
-})(Categories);
+export default Categories;

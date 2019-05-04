@@ -1,74 +1,90 @@
-import React, { useState } from "react";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { Button, Modal, Icon, Form, Dropdown } from "semantic-ui-react";
+import React, { useState } from 'react';
+import gql from 'graphql-tag';
+import { useMutation } from 'react-apollo-hooks';
+import { Button, Modal, Icon, Form, Dropdown } from 'semantic-ui-react';
 
-import { updateTodo } from "../graphql/mutations";
-import useNotification from "../hooks/useNotification";
+import { updateTodo as mutation } from '../graphql/mutations';
+import useNotification from '../hooks/useNotification';
 
 const UpdateTodo = props => {
   const [todo, setTodo] = useState(props.todo.name);
   const [due, setDue] = useState(props.todo.due);
   const [category, setCategory] = useState(
-    props.todo.category !== null ? props.todo.category.id : "Inbox"
+    props.todo.category !== null ? props.todo.category.id : 'Inbox',
   );
-  const [isOpen, setIsOpen] = useState(false);
   const notification = useNotification();
 
+  const updateTodo = useMutation(gql(mutation));
+
   const handleUpdateTodo = () => {
-    setIsOpen(false);
+    props.setOpenUpdate('');
     const input = {
       id: props.todo.id,
       name: todo,
-      due: due,
-      todoCategoryId: category
+      due,
+      todoCategoryId: category,
     };
 
-    const categoryName = props.userOptions.find(
-      elm => elm.value === input.todoCategoryId
+    const categoryName = props.categoryOptions.find(
+      elm => elm.value === input.todoCategoryId,
     );
 
-    props.updateTodo(input, { categoryName });
-    notification.handleNotification("Task Edited.");
+    updateTodo({
+      variables: { input },
+      optimisticResponse: {
+        updateTodo: {
+          id: input.id,
+          name: input.name,
+          due: input.due,
+          __typename: 'Todo',
+          category: {
+            id: input.todoCategoryId,
+            name: categoryName.text,
+            __typename: 'User',
+            Todos: {
+              nextToken: null,
+              __typename: 'ModelTodoConnection',
+            },
+          },
+        },
+      },
+    });
+
+    notification.handleNotification('タスクを更新しました');
   };
 
-  if (!props.userOptions) return <div />;
+  if (!props.categoryOptions) return <div />;
 
   return (
     <>
       {notification.Notification}
       <Modal
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        trigger={
-          <Button onClick={() => setIsOpen(true)}>
-            <Icon name="pencil" style={{ margin: "auto" }} />
-          </Button>
-        }
+        open={props.open}
+        centered={false}
+        onClose={() => props.setOpenUpdate('')}
       >
-        <Modal.Header>Edit Task</Modal.Header>
+        <Modal.Header>タスクを編集</Modal.Header>
         <Modal.Content>
           <Form>
             <Form.Field>
-              <label>Todo</label>
+              <label>やること</label>
               <input
                 value={todo}
                 onChange={e => setTodo(e.target.value)}
-                placeholder="Todo"
+                placeholder="タスクを追加"
               />
             </Form.Field>
             <Form.Field>
-              <label>Due</label>
+              <label>期日</label>
               <input
                 value={due}
                 onChange={e => setDue(e.target.value)}
-                placeholder="Due"
+                placeholder="期日を追加"
               />
             </Form.Field>
             <Form.Field>
-              <label>Category</label>
+              <label>カテゴリー</label>
               <Dropdown
-                defaultValue="Inbox"
                 placeholder="Select Category"
                 onChange={(e, data) => {
                   setCategory(data.value);
@@ -76,17 +92,19 @@ const UpdateTodo = props => {
                 value={category}
                 fluid
                 selection
-                options={props.userOptions}
+                options={props.categoryOptions}
               />
             </Form.Field>
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button color="red" onClick={() => setIsOpen(false)}>
-            <Icon name="remove" /> Cancel
+          <Button color="red" onClick={() => props.setOpenUpdate('')}>
+            <Icon name="remove" />
+            Cancel
           </Button>
           <Button color="green" onClick={handleUpdateTodo}>
-            <Icon name="checkmark" onClick={() => setIsOpen(false)} /> Update
+            <Icon name="checkmark" onClick={() => props.setOpenUpdate('')} />
+            Update
           </Button>
         </Modal.Actions>
       </Modal>
@@ -94,29 +112,4 @@ const UpdateTodo = props => {
   );
 };
 
-export default graphql(gql(updateTodo), {
-  props: props => ({
-    updateTodo: (input, optimisticVal) => {
-      props.mutate({
-        variables: { input },
-        optimisticResponse: {
-          updateTodo: {
-            id: input.id,
-            name: input.name,
-            due: input.due,
-            __typename: "Todo",
-            category: {
-              id: input.todoCategoryId,
-              name: optimisticVal.categoryName.text,
-              __typename: "User",
-              Todos: {
-                nextToken: null,
-                __typename: "ModelTodoConnection"
-              }
-            }
-          }
-        }
-      });
-    }
-  })
-})(UpdateTodo);
+export default UpdateTodo;

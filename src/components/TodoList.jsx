@@ -1,53 +1,96 @@
-import React, { useEffect, useState } from "react";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { listTodos } from "../graphql/queries";
-import history from "../history";
+import React, { useEffect, useState } from 'react';
+import { Auth } from 'aws-amplify';
+import gql from 'graphql-tag';
+import { useQuery, useMutation } from 'react-apollo-hooks';
 import {
   List,
   Menu,
-  Checkbox,
   Sidebar,
   Segment,
   Button,
   Icon,
   Header,
-  Dimmer,
-  Loader
-} from "semantic-ui-react";
+  Loader,
+  Popup,
+} from 'semantic-ui-react';
 
-import CreateTodo from "./CreateTodo";
-import DeleteTodo from "./DeleteTodo";
-import UpdateTodo from "./UpdateTodo";
-import useCategoryOptions from "../hooks/useCategoryOptions";
-import useNotification from "../hooks/useNotification";
-import Category from "./Category";
+import { listTodos, listCategorys } from '../graphql/queries';
+import { updateTodo as mutation } from '../graphql/mutations';
+import CreateTodo from './CreateTodo';
+import DeleteTodo from './DeleteTodo';
+import UpdateTodo from './UpdateTodo';
+import useCategoryOptions from '../hooks/useCategoryOptions';
+import useNotification from '../hooks/useNotification';
+import Category from './Category';
+import history from '../history';
 
 const TodoList = props => {
-  const [userOptions, setUserOptions] = useState(null);
-  const [activeItem, setActiveItem] = useState("TODO");
-  const [notifiVisible, setNotifiVisible] = useState(false);
-  const [notifyMessage, setNotifyMessage] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState(null);
   const [show, setShow] = useState(false);
-  const getUserOption = useCategoryOptions;
+  const getCategoryOptions = useCategoryOptions;
   const notification = useNotification();
+  const [openUpdate, setOpenUpdate] = useState('');
+  const [openDelete, setOpenDelete] = useState('');
+
+  const { data, loading } = useQuery(gql(listTodos), {
+    variables: { limit: 100 },
+  });
+
+  const categoryData = useQuery(gql(listCategorys), {
+    variables: { limit: 100 },
+  });
 
   useEffect(() => {
-    (async () => {
-      const fetchedUserOptions = await getUserOption();
-      setUserOptions(fetchedUserOptions);
-    })();
-  }, []);
+    if (!categoryData.loading) {
+      const fetchedCategoryOptions = getCategoryOptions(categoryData.data);
+      setCategoryOptions(fetchedCategoryOptions);
+    }
+  }, [categoryData.loading, categoryData]);
+
+  const updateTodo = useMutation(gql(mutation));
+
+  const toggleTodoDone = elm => {
+    const input = {
+      id: elm.id,
+      done: !elm.done,
+    };
+    console.log(elm);
+    console.log(input);
+
+    updateTodo({
+      variables: { input },
+      optimisticResponse: {
+        updateTodo: {
+          id: elm.id,
+          name: elm.name,
+          due: elm.due,
+          done: input.done,
+          __typename: 'Todo',
+          category: {
+            id: elm.category !== null ? elm.category.id : 'Loading...',
+            name: elm.category !== null ? elm.category.name : 'Inbox',
+            __typename: 'User',
+            Todos: {
+              nextToken: null,
+              __typename: 'ModelTodoConnection',
+            },
+          },
+        },
+      },
+    });
+  };
 
   const renderTodos = () => {
     let todoItems;
-    if ("category" in props.match.params) {
-      if (props.match.params.category === "Inbox") {
-        todoItems = props.data.listTodos.items.filter(elm => {
+    if ('category' in props.match.params) {
+      if (props.match.params.category === 'signin') history.push('/');
+
+      if (props.match.params.category === 'Inbox') {
+        todoItems = data.listTodos.items.filter(elm => {
           return elm.category === null;
         });
       } else {
-        todoItems = props.data.listTodos.items.filter(elm => {
+        todoItems = data.listTodos.items.filter(elm => {
           return (
             elm.category !== null &&
             elm.category.name === props.match.params.category
@@ -55,35 +98,96 @@ const TodoList = props => {
         });
       }
     } else {
-      todoItems = props.data.listTodos.items;
+      todoItems = data.listTodos.items;
     }
 
     return (
       <>
         <List
-          style={{ paddingRight: "3%", paddingLeft: "3%", paddingTop: "15px" }}
+          style={{
+            paddingRight: '3%',
+            paddingLeft: '3%',
+            paddingTop: '15px',
+            marginBottom: '50px',
+          }}
         >
-          <Header as="h2">{props.match.params.category || "All Todos"}</Header>
+          <Header as="h2">{props.match.params.category || 'All Todos'}</Header>
           {todoItems.map(elm => {
             const category =
-              elm.category !== null ? elm.category.name : "Inbox";
+              elm.category !== null ? elm.category.name : 'Inbox';
             return (
               <List.Item key={elm.id}>
                 <List.Content floated="right">
-                  <span style={{ marginRight: "10px" }}>{elm.description}</span>
+                  <span style={{ marginRight: '10px' }}>{elm.due}</span>
+                  <Popup
+                    as={Menu}
+                    vertical
+                    style={{ width: 'auto', zIndex: 500 }}
+                    trigger={
+                      <Icon
+                        style={{ cursor: 'pointer' }}
+                        name="ellipsis horizontal"
+                        color="grey"
+                        size="large"
+                      />
+                    }
+                    on="click"
+                    position="left center"
+                  >
+                    <Menu.Item
+                      link
+                      style={{ paddingTop: '8px', paddingBottom: '8px' }}
+                      onClick={() => setOpenUpdate(elm.id)}
+                    >
+                      <Icon
+                        name="pencil"
+                        size="large"
+                        style={{ margin: 'auto' }}
+                      />
+                    </Menu.Item>
+                    <Menu.Item
+                      link
+                      onClick={() => {
+                        setOpenDelete(elm.id);
+                      }}
+                    >
+                      <Icon
+                        name="trash alternate"
+                        size="large"
+                        color="red"
+                        style={{ margin: 'auto' }}
+                      />
+                    </Menu.Item>
+                  </Popup>
                   <UpdateTodo
                     todo={elm}
-                    userOptions={userOptions}
+                    open={elm.id === openUpdate}
+                    setOpenUpdate={setOpenUpdate}
+                    categoryOptions={categoryOptions}
                     todos={todoItems}
                   />
                   <DeleteTodo
                     id={elm.id}
+                    open={elm.id === openDelete}
+                    setOpenDelete={setOpenDelete}
                     todoname={elm.name}
                     handleNotification={notification.handleNotification}
                   />
                 </List.Content>
                 <List.Content floated="left">
-                  <Checkbox style={{ marginTop: "5px", marginBotton: "5px" }} />
+                  {/* <Checkbox style={{ marginTop: '5px', marginBotton: '5px' }} /> */}
+                  <Icon
+                    name={`check circle${!elm.done ? ' outline' : ''}`}
+                    size="large"
+                    style={{
+                      marginTop: '5px',
+                      marginBotton: '5px',
+                      marginLeft: '5px',
+                      color: `${elm.done ? '#00B5AD' : 'silver'}`,
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => toggleTodoDone(elm)}
+                  />
                 </List.Content>
                 <List.Content>
                   <List.Header>{elm.name}</List.Header>
@@ -100,7 +204,7 @@ const TodoList = props => {
   const renderSidebar = () => {
     return (
       <>
-        <Sidebar.Pushable as={Segment}>
+        <Sidebar.Pushable as={Segment} style={{ marginTop: '0' }}>
           <Sidebar
             as={Menu}
             animation="overlay"
@@ -109,13 +213,13 @@ const TodoList = props => {
             vertical
             visible={show}
             width="thin"
-            style={{ bottom: "0" }}
+            style={{ bottom: '0' }}
             onClick={() => setShow(false)}
           >
             <Category />
           </Sidebar>
           <Sidebar.Pusher
-            style={{ height: "100%" }}
+            style={{ height: '100%' }}
             dimmed={show}
             onClick={() => {
               if (show) {
@@ -132,43 +236,37 @@ const TodoList = props => {
 
   const renderMenu = () => {
     return (
-      <Menu fixed="top" borderless style={{ backgroundColor: "#00b5ad" }}>
-        <Menu.Item
-          onClick={() => {
-            show ? setShow(false) : setShow(true);
-          }}
-        >
-          <Icon name="bars" style={{ color: "white" }} />
+      <Menu fixed="top" borderless style={{ backgroundColor: '#00b5ad' }}>
+        <Menu.Item onClick={() => setShow(true)}>
+          <Icon name="bars" style={{ color: 'white' }} />
         </Menu.Item>
         <Menu.Item>
-          <Icon name="checkmark" size="large" style={{ color: "white" }} />
-          <span style={{ fontSize: "18px", color: "white" }}>Todo</span>
+          <Icon name="checkmark" size="large" style={{ color: 'white' }} />
+          <span style={{ fontSize: '18px', color: 'white' }}>Todo</span>
         </Menu.Item>
-        <Menu.Item position="right" style={{ paddingRight: "10%" }}>
-          <CreateTodo
-            todos={props.data.listTodos.items}
-            userOptions={userOptions}
-          />
-        </Menu.Item>
+        <Menu.Item position="right" style={{ paddingRight: '10%' }} />
         <Menu.Item>
-          <Button>Sign Out</Button>
+          <Button onClick={() => Auth.signOut()}>Sign Out</Button>
         </Menu.Item>
       </Menu>
     );
   };
 
-  if (props.data.loading) return <Loader active>Loading...</Loader>;
+  if (loading) {
+    return <Loader active>Loading...</Loader>;
+  }
   return (
-    <div style={{ height: "100vh", paddingTop: "30px" }}>
+    <div style={{ height: '100%' }}>
       {renderMenu()}
       {renderSidebar()}
+      <CreateTodo
+        todos={data.listTodos.items}
+        categoryOptions={categoryOptions}
+        category={props.match.params.category}
+      />
       {notification.Notification}
     </div>
   );
 };
 
-const query = gql(listTodos);
-
-export default graphql(query, {
-  options: props => ({ variables: { limit: 100 } })
-})(TodoList);
+export default TodoList;

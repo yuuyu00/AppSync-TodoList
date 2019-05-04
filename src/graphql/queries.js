@@ -6,6 +6,7 @@ export const getTodo = `query GetTodo($id: ID!) {
     id
     name
     due
+    done
     category {
       id
       name
@@ -26,6 +27,7 @@ export const listTodos = `query ListTodos(
       id
       name
       due
+      done
       category {
         id
         name
@@ -44,6 +46,7 @@ export const getCategory = `query GetCategory($id: ID!) {
         id
         name
         due
+        done
       }
       nextToken
     }

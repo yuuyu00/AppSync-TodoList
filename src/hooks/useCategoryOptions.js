@@ -1,21 +1,17 @@
-import { API, graphqlOperation } from "aws-amplify";
-import { listCategorys } from "../graphql/queries";
-
-export default async () => {
-  const res = await API.graphql(graphqlOperation(listCategorys));
-  let userOptions = res.data.listCategorys.items.map(elm => {
+export default data => {
+  const categoryOptions = data.listCategorys.items.map(elm => {
     return {
       key: elm.id,
       value: elm.id,
-      text: elm.name
+      text: elm.name,
     };
   });
 
-  userOptions.push({
-    key: "Inbox",
-    value: "Inbox",
-    text: "Inbox"
+  categoryOptions.unshift({
+    key: 'Inbox',
+    value: 'Inbox',
+    text: 'Inbox',
   });
 
-  return userOptions;
+  return categoryOptions;
 };

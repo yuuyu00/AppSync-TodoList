@@ -1,34 +1,34 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
-import AWSAppSyncClient, { AUTH_TYPE } from "aws-appsync";
-import AppSyncConfig from "./aws-exports";
-import { ApolloProvider } from "react-apollo";
-import { Rehydrated } from "aws-appsync-react";
-import Amplify, { Auth } from "aws-amplify";
-// import { InMemoryCache } from "apollo-cache-inmemory";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync';
+import { ApolloProvider } from 'react-apollo';
+import { Rehydrated } from 'aws-appsync-react';
+import Amplify, { Auth } from 'aws-amplify';
+import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
+
+import AppSyncConfig from './aws-exports';
+import App from './App';
 
 Amplify.configure(AppSyncConfig);
-
-// const cache = new InMemoryCache();
 
 const client = new AWSAppSyncClient({
   url: AppSyncConfig.aws_appsync_graphqlEndpoint,
   region: AppSyncConfig.aws_appsync_region,
-  // cache,
   auth: {
     type: AUTH_TYPE.AMAZON_COGNITO_USER_POOLS,
     jwtToken: async () =>
-      (await Auth.currentSession()).getIdToken().getJwtToken()
+      (await Auth.currentSession()).getIdToken().getJwtToken(),
   },
-  disableOffline: true
+  disableOffline: true,
 });
 
 ReactDOM.render(
-  <ApolloProvider client={client}>
-    <Rehydrated>
-      <App />
-    </Rehydrated>
+  <ApolloProvider client={client} style={{ height: '100%' }}>
+    <ApolloHooksProvider client={client}>
+      <Rehydrated>
+        <App />
+      </Rehydrated>
+    </ApolloHooksProvider>
   </ApolloProvider>,
-  document.getElementById("root")
+  document.getElementById('root'),
 );

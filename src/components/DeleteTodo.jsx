@@ -1,83 +1,81 @@
-import React, { useState } from "react";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { Button, Header, Modal, Icon } from "semantic-ui-react";
+import React, { useState } from 'react';
+import gql from 'graphql-tag';
+import { useMutation } from 'react-apollo-hooks';
+import { Button, Header, Modal, Icon } from 'semantic-ui-react';
 
-import { deleteTodo } from "../graphql/mutations";
-import { listTodos } from "../graphql/queries";
+import { deleteTodo as mutation } from '../graphql/mutations';
+import { listTodos } from '../graphql/queries';
 
 const DeleteTodo = props => {
-  const [isOpen, setIsOpen] = useState(false);
+  const deleteTodo = useMutation(gql(mutation));
 
   const handleDeleteTodo = () => {
+    props.setOpenDelete('');
+
     const input = {
-      id: props.id
+      id: props.id,
     };
 
-    props.deleteTodo(input);
-    props.handleNotification("Task Deleted.");
+    deleteTodo({
+      variables: { input },
+      optimisticResponse: {
+        deleteTodo: {
+          id: input.id,
+        },
+      },
+      update: (store, { data: { deleteTodo } }) => {
+        const data = store.readQuery({
+          query: gql(listTodos),
+          variables: { limit: 100 },
+        });
+        data.listTodos.items = data.listTodos.items.filter(
+          elm => elm.id !== deleteTodo.id,
+        );
+        store.writeQuery({
+          query: gql(listTodos),
+          variables: { limit: 100 },
+          data,
+        });
+      },
+    });
+
+    props.handleNotification('タスクを削除しました');
   };
 
   return (
     <Modal
-      open={isOpen}
-      onClose={() => setIsOpen(false)}
-      trigger={
-        <Button onClick={() => setIsOpen(true)} negative>
-          <Icon name="trash alternate" style={{ margin: "auto" }} />
-        </Button>
-      }
+      open={props.open}
+      onClose={() => props.setOpenDelete('')}
       basic
       size="small"
     >
-      <Header icon="archive" content="Delete Todo" />
+      <Header icon="archive" content="タスクを削除" />
       <Modal.Content>
-        <p>{`Are you sure you want yo delete "${props.todoname}"?`}</p>
+        <p>{`"${props.todoname}"を削除してもよろしいですか?`}</p>
       </Modal.Content>
       <Modal.Actions>
-        <Button onClick={() => setIsOpen(false)} basic color="grey" inverted>
-          <Icon name="remove" /> Cancel
+        <Button
+          onClick={() => props.setOpenDelete('')}
+          basic
+          color="grey"
+          inverted
+        >
+          <Icon name="remove" />
+          キャンセル
         </Button>
         <Button
           onClick={() => {
-            setIsOpen(false);
             handleDeleteTodo();
           }}
           color="red"
           inverted
         >
-          <Icon name="checkmark" /> Delete
+          <Icon name="checkmark" />
+          削除
         </Button>
       </Modal.Actions>
     </Modal>
   );
 };
 
-export default graphql(gql(deleteTodo), {
-  props: props => ({
-    deleteTodo: input => {
-      props.mutate({
-        variables: { input },
-        optimisticResponse: {
-          deleteTodo: {
-            id: input.id
-          }
-        },
-        update: (store, { data: { deleteTodo } }) => {
-          const data = store.readQuery({
-            query: gql(listTodos),
-            variables: { limit: 100 }
-          });
-          data.listTodos.items = data.listTodos.items.filter(
-            elm => elm.id !== deleteTodo.id
-          );
-          store.writeQuery({
-            query: gql(listTodos),
-            variables: { limit: 100 },
-            data
-          });
-        }
-      });
-    }
-  })
-})(DeleteTodo);
+export default DeleteTodo;

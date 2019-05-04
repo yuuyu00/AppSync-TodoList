@@ -6,6 +6,7 @@ export const onCreateTodo = `subscription OnCreateTodo {
     id
     name
     due
+    done
     category {
       id
       name
@@ -21,6 +22,7 @@ export const onUpdateTodo = `subscription OnUpdateTodo {
     id
     name
     due
+    done
     category {
       id
       name
@@ -36,6 +38,7 @@ export const onDeleteTodo = `subscription OnDeleteTodo {
     id
     name
     due
+    done
     category {
       id
       name
@@ -55,6 +58,7 @@ export const onCreateCategory = `subscription OnCreateCategory {
         id
         name
         due
+        done
       }
       nextToken
     }
@@ -70,6 +74,7 @@ export const onUpdateCategory = `subscription OnUpdateCategory {
         id
         name
         due
+        done
       }
       nextToken
     }
@@ -85,6 +90,7 @@ export const onDeleteCategory = `subscription OnDeleteCategory {
         id
         name
         due
+        done
       }
       nextToken
     }
